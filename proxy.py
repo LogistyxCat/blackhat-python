@@ -22,17 +22,18 @@ def server_loop(local_host,local_port,remote_host,remote_port,receive_first):
         client_socket, addr = server.accept()
 
         # print out the local connection information
-        print "[==>] Received incoming connection from %s:%d" % (addr[0]:addr[1])
+        print "[==>] Received incoming connection from %s:%d" % (addr[0],addr[1])
 
         # start a thread to talk to the remote host
-        proxy_thread = threading.Thread(target=proxy_handler, args=(client_socket,remote_host,remote_port,receive_first))
+        proxy_thread = threading.Thread(target=proxy_handler,
+        args=(client_socket,remote_host,remote_port,receive_first))
 
         proxy_thread.start()
 
 def proxy_handler(client_socket, remote_host, remote_port, receive_first):
     # connect to the remote host
     remote_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    remotesocket.connect((remote_host,remote_port))
+    remote_socket.connect((remote_host,remote_port))
 
     # receive data from the remote end if necessary
     if receive_first:
@@ -89,7 +90,7 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 
 def hexdump(src, length=16):
     result = []
-    digits = 4 is isinstance(src, unicode) else 2
+    digits = 4 if isinstance(src, unicode) else 2
 
     for i in xrange(0, len(src), length):
         s = src[i:i+length]
@@ -114,10 +115,10 @@ def receive_from(connection):
             if not data:
                 break
             buffer += data
-        except:
+    except:
         pass
 
-        return buffer
+    return buffer
 
 # modify requests dextined for remote host
 def request_handler(buffer):
@@ -131,8 +132,8 @@ def response_handler(buffer):
 
 def main():
     # no fancy command-line parsing here
-    if len(sys.argv[1]:) != 5:
-        print "Usage: ./proxy.py [localhost] [localport] [remotehost] [remoteport] [receive_first]"
+    if len(sys.argv[1:]) != 5:
+        print "Usage: ./proxy.py [localhost] [receive_port] [remotehost] [send_to_port] [receive_first]"
         print "Example: ./proxy.py 127.0.0.1 9000 10.12.132.1 9000 True"
         sys.exit(0)
 
