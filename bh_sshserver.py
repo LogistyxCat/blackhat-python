@@ -7,6 +7,8 @@ import paramiko
 import threading
 import sys
 
+# File available on the Paramiko Official GitHub:
+# https://github.com/paramiko/paramiko/blob/master/demos/test_rsa.key
 host_key = paramiko.RSAKey(filename='test_rsa.key')
 
 
