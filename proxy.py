@@ -4,12 +4,13 @@ import sys
 import socket
 import threading
 
+
 def server_loop(local_host,local_port,remote_host,remote_port,receive_first):
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
-        server.bind((local_host,local_port))
+        server.bind((local_host, local_port))
     except:
         print "[!!] Failed to listen on %s:%d" % (local_host,local_port)
         print "[!!] Check for other listening sockets or correct permissions."
@@ -30,6 +31,7 @@ def server_loop(local_host,local_port,remote_host,remote_port,receive_first):
 
         proxy_thread.start()
 
+
 def proxy_handler(client_socket, remote_host, remote_port, receive_first):
     # connect to the remote host
     remote_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -47,6 +49,7 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
         if len(remote_buffer):
             print "[<==] Sending %d bytes to localhost." % len(remote_buffer)
             client_socket.send(remote_buffer)
+
 
     #now lets loop and read from local, send to remote, send to local, ad infi
     while True:
@@ -88,6 +91,7 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 
             break
 
+
 def hexdump(src, length=16):
     result = []
     digits = 4 if isinstance(src, unicode) else 2
@@ -99,6 +103,7 @@ def hexdump(src, length=16):
         result.append( b"%04X %-*s %s" % (i, length*(digits + 1), hexa, text) )
 
     print b'\n'.join(result)
+
 
 def receive_from(connection):
     buffer = ""
