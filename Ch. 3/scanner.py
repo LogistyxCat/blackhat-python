@@ -1,9 +1,14 @@
 # Ver. 1.1
 # Requires admin access on system
-# Usage: python ./packetSniffer.py host_ip_address
+# Note: In Windows, the firewall may mess with ICMP packets, which can break the scanner
+# Usage: python ./scanner.py host_ip_address host_subnet
 
 import os, sys, time, socket, struct, threading
 from ctypes import Structure, c_ubyte, c_ushort, c_ulong, sizeof
+from netaddr import IPNetwork, IPAddress
+
+# Magic string we are looking for
+magic_string = "PYTHON4LIFE!"
 
 
 # IP packet headers
@@ -57,19 +62,35 @@ class ICMP(Structure):
         pass
 
 
+# Spray UDP datagrams
+def udp_sender(subnet, magic_string):
+    time.sleep(5)
+    sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    for ip in IPNetwork(subnet):
+        try:
+            sender.sendto(magic_string,("%s" % ip,65212))
+        except:
+            pass
+
+
 def help():
-    print("BHP Packet Scanner / ICMP sniffer")
-    print("Usage: python ./packetSniffer.py host_ip_address")
+    print("BHP Subnet scanner")
+    print("Identifies online hosts using UDP and ICMP packets.")
+    print("Note: While this does work on Windows, the firewall may not like this.")
+    print("Usage: python ./packetSniffer.py host_ip_address target_subnet")
     print("Examples:")
-    print("\tpython ./packetSniffer 192.128.0.101")
-    print("\tpython ./packetSniffer 172.168.1.4")
+    print("\tpython ./scanner.py 192.128.0.101 192.168.0.0/24")
+    print("\tpython ./scanner.py 172.168.1.4 172.16.0.0/16")
+    print("\tpython ./scanner.py 10.10.100.5 10.0.0.0/8")
     exit()
 
 
 def main():
-    # Host IP to listen on
+    # Host to listen on and subnet to spray
     try:
         host = sys.argv[1]
+        subnet = sys.argv[2]
     except:
         help()
 
@@ -91,6 +112,10 @@ def main():
     # If the host is Windows, send an IOCTL to set promiscuous mode
     if os.name == "nt":
         sniffer.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
+
+    # Start sending magic packets
+    t = threading.Thread(target=udp_sender, args=(subnet,magic_string))
+    t.start()
 
     # Read in all the packets
     try:
@@ -115,6 +140,14 @@ def main():
                 icmp_header = ICMP(buf)
 
                 print("ICMP -> Type: %d Code: %d" % (icmp_header.type, icmp_header.code))
+
+                # Now check to TYPE and CODE 3
+                if icmp_header.code == 3 and icmp_header.type == 3:
+                    # Make sure host is in the target subnet
+                    if IPAddress(ip_header.src_address) in IPNetwork(subnet):
+                        # Check if magic_string is present
+                        if raw_buffer[len(raw_buffer)-len(magic_string):] == magic_string:
+                            print("Host Up: %s" % ip_header.src_address)
 
     except KeyboardInterrupt:
         # Cleanup the promiscuous Windows mode
