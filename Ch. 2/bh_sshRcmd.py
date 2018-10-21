@@ -1,5 +1,5 @@
 # Ver 1.0
-# Reverse SSH server-client client script
+# Reverse SSH server-client client-side script
 # Commands are sent from the server, executed here, and returned to the server
 
 # import threading

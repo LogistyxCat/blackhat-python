@@ -1,6 +1,7 @@
 # Ver 0.3
 # C2 server for the reverse-SSH client script
 # Commands entered here are executed on the host with the client script
+# Should be Python 3 compatible
 
 import socket
 import paramiko

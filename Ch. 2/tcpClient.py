@@ -19,4 +19,4 @@ client.send("ABCDEF\n")
 #receive some data
 response = client.recv(4096)
 
-print response
+print(response)

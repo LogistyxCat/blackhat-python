@@ -1,7 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-# Ver. 1.1
+# Ver. 1.2
 # Performs netcat operations through Python
+# Updating compatibility for Python 3
 
 import sys
 import socket
@@ -28,7 +29,7 @@ def run_command(command):
     try:
         output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     except:
-        output = "[*] Failed to execute command.\r\n"
+        output = "[!] Failed to execute command.\r\n"
 
     # send the output back to the client
     return output
@@ -103,7 +104,7 @@ def server_loop():
 
     try:
         while True:
-            client_socket, addr = server.accept()
+            client_socket = server.accept()
 
             # spin off a thread to handle out new client
             client_thread = threading.Thread(target=client_handler, args=(client_socket,))
@@ -140,34 +141,34 @@ def client_sender(buffer):
             print(response)
 
             # wait for more input
-            buffer = raw_input("")
+            buffer = input("")
             buffer += "\n"
 
             # send it off
             client.send(buffer)
 
     except:
-        print "[*] Exception! Exiting."
+        print("[*] Exception! Exiting.")
 
         # tear down the connection
         client.close()
 
 
 def usage():
-    print "BHP Net Tool"
-    print
-    print "Useage: bhpnet.py -t target_host -p port"
-    print "-l --listen              - listen on [host]:[port] for incoming connections"
-    print "-e --execute=file_to_run - execute the given file upon receiving a connection"
-    print "-c --command             - initialize a command shell"
-    print "-u --upload=destination  - upon receiving connection upload a file and write to [destination]"
-    print
-    print
-    print "Examples: "
-    print "bhpnet.py -t 192.168.0.1 -p 5555 -l -c"
-    print "bhpnet.py -t 192.168.0.1 -p 5555 -l -u =c:\\target.exe"
-    print "bhpnet.py -t 192.168.0.1 -p 5555 -l -e=\'cat /etc/passwd'"
-    print "echo 'ABCDEFGHI' | ./bhpnet.py -t 192.168.0.1 -p 135"
+    print ("BHP Net Tool")
+    print()
+    print ("Useage: bhpnet.py -t target_host -p port")
+    print ("-l --listen              - listen on [host]:[port] for incoming connections")
+    print ("-e --execute=file_to_run - execute the given file upon receiving a connection")
+    print ("-c --command             - initialize a command shell")
+    print ("-u --upload=destination  - upon receiving connection upload a file and write to [destination]")
+    print()
+    print()
+    print ("Examples: ")
+    print ("bhpnet.py -t 192.168.0.1 -p 5555 -l -c")
+    print ("bhpnet.py -t 192.168.0.1 -p 5555 -l -u =c:\\target.exe")
+    print ("bhpnet.py -t 192.168.0.1 -p 5555 -l -e=\'cat /etc/passwd'")
+    print ("echo 'ABCDEFGHI' | ./bhpnet.py -t 192.168.0.1 -p 135")
     sys.exit(0)
 
 
@@ -184,9 +185,9 @@ def main():
 
     # read the commandline options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hle:t:p:cu:", ["help", "listen", "execute", "target", "port", "command", "upload"])
+        opts = getopt.getopt(sys.argv[1:], "hle:t:p:cu:", ["help", "listen", "execute", "target", "port", "command", "upload"])
     except getopt.GetoptError as err:
-        print str(err)
+        print (str(err))
         usage()
 
     for o, a in opts:
